@@ -1,0 +1,44 @@
+<div class="card shadow border-0 p-4 mt-4">
+  <div class="text-center mb-5">
+    <h2 class="fw-bold text-primary">👨‍⚕️ Наши специалисты</h2>
+    <p class="text-muted">Квалифицированная медицинская помощь и индивидуальный подход к каждому пациенту</p>
+  </div>
+
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {{#each doctors}}
+      <div class="col">
+        <div class="card h-100 shadow-sm border hover-shadow-clinic p-3">
+          <div class="card-body text-center">
+            <div class="display-4 mb-3">🩺</div>
+            <h5 class="card-title fw-bold text-dark mb-1">{{this.user_id.full_name}}</h5>
+            
+            <!-- Специализация врача -->
+            <p class="mb-2">
+              <span class="badge bg-info text-white px-3 py-1 fs-6 capitalize">{{this.specialization}}</span>
+            </p>
+            
+            <!-- Опыт и Кабинет -->
+            <div class="bg-light p-2 rounded small text-secondary text-start mt-3">
+              <div class="d-flex justify-content-between mb-1">
+                <span>Стаж работы:</span>
+                <span class="fw-semibold text-dark">{{this.experience}}</span>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span>Кабинет:</span>
+                <span class="fw-semibold text-primary">№ {{this.room_number}}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card-footer bg-white border-0 pt-0 mt-2">
+            <a href="/appointments/book" class="btn btn-clinic-primary w-100 btn-sm">Записаться на прием</a>
+          </div>
+        </div>
+      </div>
+    {{else}}
+      <div class="col-12 text-center py-5 text-muted fs-5">
+        📭 В данный момент список врачей пуст. Администратор еще не назначил специалистов.
+      </div>
+    {{/each}}
+  </div>
+</div>

@@ -1,0 +1,8 @@
+
+:root{--primary:#0f766e;--accent:#14b8a6;--bg:#f4fbfa;}
+body{background:var(--bg);font-family:Inter,Arial,sans-serif}
+.navbar,.navbar-dark{background:#fff!important;box-shadow:0 8px 30px rgba(0,0,0,.06)}
+.card,.table,.container form{border-radius:22px!important;box-shadow:0 10px 30px rgba(15,118,110,.08)}
+.btn-primary{background:linear-gradient(135deg,#0f766e,#14b8a6)!important;border:none}
+.form-control,.form-select{border-radius:14px;padding:12px}
+.page-header{background:linear-gradient(135deg,#0f766e,#14b8a6);color:#fff;padding:40px;border-radius:24px;margin-bottom:25px}

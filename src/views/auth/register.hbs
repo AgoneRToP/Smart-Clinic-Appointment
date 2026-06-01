@@ -1,0 +1,74 @@
+<div class="page-header"><h1>🏥 Smart Clinic</h1><p>Современная медицинская система</p></div>
+<div class="card p-4">
+<div class="row justify-content-center mt-5">
+  <div class="col-md-6">
+    <div class="card shadow border-0">
+      <div class="card-header bg-white text-center pt-4">
+        <h4 class="card-title fw-bold text-primary">Регистрация аккаунта</h4>
+        <p class="text-muted small">Создайте профиль для онлайн-записи к врачам</p>
+      </div>
+      <div class="card-body px-4 py-4">
+        
+        {{#if error}}
+          <div class="alert alert-danger" role="alert">
+            {{error}}
+          </div>
+        {{/if}}
+
+        <form action="/auth/register" method="POST">
+          <!-- Поле ФИО -->
+          <div class="mb-3">
+            <label for="full_name" class="form-label text-secondary fw-semibold">Полное имя (ФИО)</label>
+            <input 
+              type="text" 
+              name="full_name" 
+              id="full_name" 
+              class="form-control form-control-lg" 
+              placeholder="Иванов Иван Иванович" 
+              required
+            >
+          </div>
+
+          <!-- Поле Email -->
+          <div class="mb-3">
+            <label for="email" class="form-label text-secondary fw-semibold">Email адрес</label>
+            <input 
+              type="email" 
+              name="email" 
+              id="email" 
+              class="form-control form-control-lg" 
+              placeholder="example@clinic.com" 
+              required
+            >
+          </div>
+
+          <!-- Поле Пароля -->
+          <div class="mb-4">
+            <label for="password" class="form-label text-secondary fw-semibold">Пароль</label>
+            <input 
+              type="password" 
+              name="password" 
+              id="password" 
+              class="form-control form-control-lg" 
+              placeholder="••••••••" 
+              required
+            >
+            <div class="form-text text-muted small mt-1">
+              Минимум 8 символов: заглавная, строчная, цифра и спецсимвол.
+            </div>
+          </div>
+
+          <!-- Кнопка отправки -->
+          <button type="submit" class="btn btn-primary btn-lg w-100 shadow-sm mb-3">Зарегистрироваться</button>
+        </form>
+
+        <div class="text-center mt-3">
+          <span class="text-muted small">Уже есть аккаунт?</span>
+          <a href="/auth/login" class="small text-decoration-none fw-semibold">Войти</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>

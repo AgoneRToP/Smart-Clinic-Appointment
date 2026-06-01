@@ -1,0 +1,85 @@
+<div class="page-header"><h1>🏥 Smart Clinic</h1><p>Современная медицинская система</p></div>
+<div class="card p-4">
+<div class="row g-4 mt-2">
+  <!-- Форма 1: Создание отделения -->
+  <div class="col-md-5">
+    <div class="card shadow border-0 p-4 mb-4">
+      <h5 class="fw-bold text-danger mb-3">➕ Создать отделение</h5>
+      <form action="/departments" method="POST">
+        <div class="mb-3">
+          <label class="form-label small fw-bold">Название направления</label>
+          <input type="text" name="name" class="form-control" placeholder="Например: Кардиология" required>
+        </div>
+        <button type="submit" class="btn btn-danger w-100 shadow-sm">Добавить отделение</button>
+      </form>
+    </div>
+
+    <!-- Форма 2: Назначение доктора -->
+    <div class="card shadow border-0 p-4">
+      <h5 class="fw-bold text-primary mb-3">👨‍⚕️ Назначить нового врача</h5>
+      <form action="/admin/doctors/assign" method="POST">
+        <div class="mb-3">
+          <label class="form-label small fw-bold">Выберите пользователя системы</label>
+          <select name="user_id" class="form-select" required>
+            {{#each users}}
+              <option value="{{this._id}}">{{this.full_name}} ({{this.email}})</option>
+            {{/each}}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">Специализация</label>
+          <input type="text" name="specialization" class="form-control" placeholder="cardiologist" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">Уровень опыта</label>
+          <select name="experience" class="form-select" required>
+            <option value="Entry-level">Entry-level</option>
+            <option value="Mid-level">Mid-level</option>
+            <option value="Senior">Senior</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">Номер кабинета</label>
+          <input type="text" name="room_number" class="form-control" placeholder="Кабинет № 204" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 shadow-sm">Подтвердить назначение</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Таблица: Список текущих докторов клиники -->
+  <div class="col-md-7">
+    <div class="card shadow border-0 p-4 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="fw-bold text-dark mb-0">🏥 Действующие врачи клиники</h5>
+        <a href="/profile" class="btn btn-sm btn-outline-secondary">В профиль</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-striped align-middle border">
+          <thead class="table-dark">
+            <tr>
+              <th>Имя специалиста</th>
+              <th>Специализация</th>
+              <th>Кабинет</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each doctors}}
+              <tr>
+                <td class="fw-bold text-primary">{{this.user_id.full_name}}</td>
+                <td><span class="badge bg-secondary">{{this.specialization}}</span></td>
+                <td class="fw-semibold">{{this.room_number}}</td>
+              </tr>
+            {{else}}
+              <tr>
+                <td colspan="3" class="text-center py-4 text-muted">Врачи еще не назначены.</td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>

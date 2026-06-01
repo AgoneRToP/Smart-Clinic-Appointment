@@ -1,0 +1,103 @@
+/* src/public/css/style.css */
+
+:root {
+  --primary-color: #0ea5e9; /* Современный небесно-синий */
+  --primary-hover: #0284c7;
+  --bg-light: #f8fafc; /* Мягкий светлый фон */
+  --text-dark: #0f172a; /* Глубокий темный для хорошей читаемости */
+  --card-radius: 16px;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
+/* Стильный, полупрозрачный Navbar с эффектом размытия (Glassmorphism) */
+.navbar-clinic {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+}
+
+.navbar-brand-clinic {
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text-dark) !important;
+}
+
+.nav-link-clinic {
+  color: #64748b !important;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.nav-link-clinic:hover, .nav-link-clinic.active {
+  color: var(--primary-color) !important;
+}
+
+/* Кнопки */
+.btn-clinic-primary {
+  background-color: var(--primary-color);
+  border: none;
+  color: white;
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 10px 24px;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.2s ease;
+}
+
+.btn-clinic-primary:hover {
+  background-color: var(--primary-hover);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.25);
+}
+
+/* Карточки с мягкими тенями Apple-style */
+.card {
+  border: 1px solid rgba(15, 23, 42, 0.04) !important;
+  border-radius: var(--card-radius) !important;
+  box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.06) !important;
+  background: #ffffff;
+}
+
+/* Поля ввода */
+.form-control, .form-select {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15);
+}
+
+/* Кастомный ховер для интерактивных блоков */
+.hover-shadow-clinic {
+  transition: all 0.3s ease;
+}
+.hover-shadow-clinic:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.12) !important;
+}
+
+footer {
+  background: #ffffff;
+  border-top: 1px solid rgba(15, 23, 42, 0.05);
+  color: #64748b;
+}

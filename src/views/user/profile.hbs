@@ -1,0 +1,167 @@
+<div class="alert alert-warning m-3">
+  <h4>DEBUG ROLE CHECK</h4>
+
+  <p><b>Имя:</b> {{user.full_name}}</p>
+  <p><b>Email:</b> {{user.email}}</p>
+  <p><b>Роль:</b> {{user.role}}</p>
+
+  {{#if user.role}}
+    <p>✅ user.role существует</p>
+  {{else}}
+    <p>❌ user.role отсутствует</p>
+  {{/if}}
+
+  {{#ifCond user.role '===' 'admin'}}
+    <p>✅ ADMIN DETECTED</p>
+  {{else}}
+    <p>❌ ADMIN NOT DETECTED</p>
+  {{/ifCond}}
+
+  {{#ifCond user.role '===' 'doctor'}}
+    <p>✅ DOCTOR DETECTED</p>
+  {{/ifCond}}
+
+  {{#ifCond user.role '===' 'patient'}}
+    <p>✅ PATIENT DETECTED</p>
+  {{/ifCond}}
+</div>
+</div>
+<div class="page-header"><h1>🏥 Smart Clinic</h1><p>Современная медицинская система</p></div>
+<div class="card p-4">
+<div class="row g-4 mt-2">
+  <!-- Левая колонка: Карточка профиля -->
+  <div class="col-md-4">
+    <div class="card shadow border-0 text-center p-4">
+      <div class="card-body">
+        <div class="display-3 mb-3">👤</div>
+        <h4 class="fw-bold text-dark mb-1">{{user.full_name}}</h4>
+        <p class="text-muted small mb-3">{{user.email}}</p>
+        
+        <!-- Бейдж Роли -->
+        {{#ifCond user.role '==' 'admin'}}
+          <span class="badge bg-danger px-3 py-2 fs-6 shadow-sm">Администратор</span>
+        {{/ifCond}}
+        {{#ifCond user.role '==' 'doctor'}}
+          <span class="badge bg-success px-3 py-2 fs-6 shadow-sm">Врач клиники</span>
+        {{/ifCond}}
+        {{#ifCond user.role '==' 'patient'}}
+          <span class="badge bg-primary px-3 py-2 fs-6 shadow-sm">Пациент</span>
+        {{/ifCond}}
+
+        <hr class="my-4">
+
+        <!-- Статус Telegram-бота -->
+        <div class="p-3 border rounded bg-light text-start shadow-sm">
+          <h6 class="fw-bold text-secondary mb-2">🤖 Telegram-уведомления</h6>
+          {{#if user.telegram_id}}
+            <div class="text-success small d-flex align-items-center gap-2">
+              <span>●</span> Бот успешно подключен
+            </div>
+            <p class="text-muted text-xs mt-1 mb-0" style="font-size: 0.75rem;">ID: {{user.telegram_id}}</p>
+          {{else}}
+            <div class="text-warning small d-flex align-items-center gap-2 mb-3">
+              <span>●</span> Бот не подключен
+            </div>
+            
+            <!-- ОФИЦИАЛЬНАЯ КНОПКА TELEGRAM -->
+            <!-- data-auth-url — это адрес на вашем бэкенде, куда Telegram отправит данные после клика -->
+            <script 
+              async 
+              src="https://telegram.org" 
+              data-telegram-login="clinic_jsdelivr_bot" 
+              data-size="medium" 
+              data-radius="10"
+              data-auth-url="/auth/telegram/callback" 
+              data-request-access="write">
+            </script>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Правая колонка: Быстрые действия и Меню управления -->
+  <div class="col-md-8">
+    <div class="card shadow border-0 p-4 h-100">
+      <h4 class="fw-bold text-primary mb-4">Панель управления</h4>
+      
+      <div class="row g-3">
+        <!-- Блок для Пациента -->
+        {{#ifCond user.role '==' 'patient'}}
+          <div class="col-md-6">
+            <div class="p-3 border rounded bg-light hover-shadow h-100 d-flex flex-column justify-content-between shadow-sm">
+              <div>
+                <h5 class="fw-bold text-dark">📅 Запись на прием</h5>
+                <p class="text-muted small">Выберите врача, дату и отправьте заявку в клинику.</p>
+              </div>
+              <a href="/appointments/book" class="btn btn-primary w-100 mt-2">Записаться к врачу</a>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-3 border rounded bg-light hover-shadow h-100 d-flex flex-column justify-content-between shadow-sm">
+              <div>
+                <h5 class="fw-bold text-dark">📜 Мои записи</h5>
+                <p class="text-muted small">Просмотр истории визитов и текущего статуса одобрения.</p>
+              </div>
+              <a href="/appointments/my-history" class="btn btn-outline-primary w-100 mt-2">Открыть историю</a>
+            </div>
+          </div>
+        {{/ifCond}}
+
+        <!-- Блок для Врача -->
+        {{#ifCond user.role '==' 'doctor'}}
+          <div class="col-md-6">
+            <div class="p-3 border rounded bg-light hover-shadow h-100 d-flex flex-column justify-content-between shadow-sm">
+              <div>
+                <h5 class="fw-bold text-dark">📝 Список приемов</h5>
+                <p class="text-muted small">Просматривайте записи пациентов и одобряйте новые заявки.</p>
+              </div>
+              <a href="/appointments/doctor-list" class="btn btn-success w-100 mt-2">Управление приемами</a>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-3 border rounded bg-light hover-shadow h-100 d-flex flex-column justify-content-between shadow-sm">
+              <div>
+                <h5 class="fw-bold text-dark">⚙️ Мое расписание</h5>
+                <p class="text-muted small">Редактируйте свои рабочие часы и дни недели клиники.</p>
+              </div>
+              <a href="/schedules/manage" class="btn btn-outline-success w-100 mt-2">Настроить часы</a>
+            </div>
+          </div>
+        {{/ifCond}}
+
+        <!-- Блок для Администратора -->
+        {{#ifCond user.role '==' 'admin'}}
+          <div class="col-md-6">
+            <div class="p-3 border rounded bg-light hover-shadow h-100 d-flex flex-column justify-content-between shadow-sm">
+              <div>
+                <h5 class="fw-bold text-dark">👥 Управление пользователями</h5>
+                <p class="text-muted small">Просмотр списка зарегистрированных лиц и изменение их ролей.</p>
+              </div>
+              <a href="/admin/users" class="btn btn-danger w-100 mt-2">Открыть базу пользователей</a>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-3 border rounded bg-light hover-shadow h-100 d-flex flex-column justify-content-between shadow-sm">
+              <div>
+                <h5 class="fw-bold text-dark">🏥 Доктора и Отделения</h5>
+                <p class="text-muted small">Создание медицинских направлений и назначение врачей в кабинеты.</p>
+              </div>
+              <div class="d-flex gap-2 mt-2">
+                <a href="/admin/doctors" class="btn btn-outline-danger btn-sm w-50">Врачи</a>
+                <a href="/departments" class="btn btn-outline-secondary btn-sm w-50">Отделения</a>
+              </div>
+            </div>
+          </div>
+        {{/ifCond}}
+      </div>
+
+      <hr class="my-4 mt-auto">
+      <div class="d-flex justify-content-end">
+        <a href="/auth/logout" class="btn btn-outline-secondary px-4">Выйти из аккаунта</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
