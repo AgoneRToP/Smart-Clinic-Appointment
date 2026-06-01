@@ -1,0 +1,68 @@
+<div class="row justify-content-center mt-4">
+  <div class="col-md-9">
+    <div class="card shadow border-0 p-4">
+      <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+          <h3 class="fw-bold text-success mb-1">⚙️ Управление рабочим временем</h3>
+          <p class="text-muted mb-0">Отметьте ваши рабочие дни недели и укажите интервал времени приема пациентов.</p>
+        </div>
+        <a href="/profile" class="btn btn-outline-secondary px-3 rounded-3">↩ В профиль</a>
+      </div>
+
+      <form action="/schedules/manage" method="POST">
+        
+        <!-- Интерактивный блок выбора дней недели -->
+        <div class="mb-4">
+          <label class="form-label fw-bold text-secondary mb-3">1. Выберите ваши рабочие дни:</label>
+          <div class="row g-2 text-center">
+            
+            <div class="col-6 col-sm-4 col-md">
+              <input type="checkbox" class="btn-check" name="work_days" id="day_mon" value="Monday">
+              <label class="btn btn-outline-success p-3 w-100 rounded-3 border fw-semibold shadow-sm" for="day_mon">🗓 Пн<br><small class="text-xs font-normal">Monday</small></label>
+            </div>
+
+            <div class="col-6 col-sm-4 col-md">
+              <input type="checkbox" class="btn-check" name="work_days" id="day_tue" value="Tuesday">
+              <label class="btn btn-outline-success p-3 w-100 rounded-3 border fw-semibold shadow-sm" for="day_tue">🗓 Вт<br><small class="text-xs font-normal">Tuesday</small></label>
+            </div>
+
+            <div class="col-6 col-sm-4 col-md">
+              <input type="checkbox" class="btn-check" name="work_days" id="day_wed" value="Wednesday">
+              <label class="btn btn-outline-success p-3 w-100 rounded-3 border fw-semibold shadow-sm" for="day_wed">🗓 Ср<br><small class="text-xs font-normal">Wednesday</small></label>
+            </div>
+
+            <div class="col-6 col-sm-4 col-md">
+              <input type="checkbox" class="btn-check" name="work_days" id="day_thu" value="Thursday">
+              <label class="btn btn-outline-success p-3 w-100 rounded-3 border fw-semibold shadow-sm" for="day_thu">🗓 Чт<br><small class="text-xs font-normal">Thursday</small></label>
+            </div>
+
+            <div class="col-6 col-sm-4 col-md">
+              <input type="checkbox" class="btn-check" name="work_days" id="day_fri" value="Friday">
+              <label class="btn btn-outline-success p-3 w-100 rounded-3 border fw-semibold shadow-sm" for="day_fri">🗓 Пт<br><small class="text-xs font-normal">Friday</small></label>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Поля выбора часов -->
+        <div class="mb-4">
+          <label class="form-label fw-bold text-secondary mb-3">2. Укажите интервал рабочих часов приема:</label>
+          <div class="row g-3 bg-light p-4 rounded-3 border shadow-sm">
+            <div class="col-sm-6">
+              <label for="start_time" class="form-label small fw-bold text-muted">⏰ Начало смены</label>
+              <input type="time" name="start_time" id="start_time" class="form-control form-control-lg bg-white border-2" value="09:00" required>
+            </div>
+            <div class="col-sm-6">
+              <label for="end_time" class="form-label small fw-bold text-muted">🚪 Конец смены</label>
+              <input type="time" name="end_time" id="end_time" class="form-control form-control-lg bg-white border-2" value="17:00" required>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-success btn-lg w-100 shadow mt-3 py-3 rounded-3 fw-bold">
+          💾 Применить и обновить расписание клиники
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

@@ -60,6 +60,29 @@ async function bootstrap() {
     return JSON.stringify(context, null, 2);
   });
 
+  hbs.registerHelper('translateSpecialization', function (value: string) {
+    const translations: Record<string, string> = {
+      cardiologist: '❤️ Кардиолог',
+      pediatrician: '👶 Педиатр',
+      neurologist: '🧠 Невролог',
+      dermatologist: '🩺 Дерматолог',
+      therapist: '📋 Терапевт',
+      surgeon: '🔪 Хирург',
+      ophthalmologist: '👁️ Офтальмолог',
+      dentist: '🦷 Стоматолог',
+    };
+    return translations[value] || value;
+  });
+
+  hbs.registerHelper('inc', function (value) {
+    return parseInt(value) + 1;
+  });
+
+  hbs.registerHelper('or', function (/* агрументы */) {
+    const args = Array.prototype.slice.call(arguments, 0, -1);
+    return args.some(Boolean);
+  });
+
   app.set('view options', { layout: 'layouts/main' });
 
   const port = process.env.PORT ?? 3000;

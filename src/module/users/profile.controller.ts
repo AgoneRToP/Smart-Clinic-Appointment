@@ -12,20 +12,10 @@ export class ProfileController {
   @Protected(true)
   @Render('user/profile')
   async getProfile(@Req() req: any) {
-    const response = await this.usersService.getOne(req.user.id);
-
-    const rawUser = response?.data;
-
-    const user =
-      rawUser && typeof (rawUser as any).toObject === 'function'
-        ? (rawUser as any).toObject()
-        : rawUser
-          ? JSON.parse(JSON.stringify(rawUser))
-          : null;
 
     return {
       title: 'Личный кабинет',
-      user,
+      user: req.user, 
     };
   }
 }

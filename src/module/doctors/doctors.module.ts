@@ -4,6 +4,8 @@ import { Doctor, DoctorSchema } from './models';
 import { UserSchema, UsersModule } from '../users';
 import { DoctorsService } from './doctors.service';
 import { DoctorsController } from './doctors.controller';
+import { DepartmentsModule } from '../departments/departments.module';
+
 
 @Module({
   imports: [
@@ -12,6 +14,7 @@ import { DoctorsController } from './doctors.controller';
       { name: 'User', schema: UserSchema },
     ]),
     UsersModule,
+    DepartmentsModule, 
   ],
   providers: [DoctorsService],
   controllers: [DoctorsController],

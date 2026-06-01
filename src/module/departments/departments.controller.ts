@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
 import { DepartmentsService } from './departments.service';
 import { CreateDepartmentDto } from './dtos';
 import { Protected, Roles } from '@/common/decorators';
 import { AuthGuard, RolesGuard } from '@/common/guards';
 import { UserRoles } from '@/core/constants';
+import type { Response } from 'express';
 
 @Controller('departments')
 @UseGuards(AuthGuard, RolesGuard)
@@ -13,13 +14,10 @@ export class DepartmentsController {
   @Post()
   @Protected(true)
   @Roles([UserRoles.Admin])
-  async create(@Body() payload: CreateDepartmentDto) {
-    const department = await this.service.create(payload);
-    return {
-      success: true,
-      message: `Department "${department.name}" was successfully created`,
-      data: department,
-    };
+  async create(@Body() payload: CreateDepartmentDto, @Res() res: Response) {
+    await this.service.create(payload);
+    
+    return res.redirect('/admin/doctors/management');
   }
 
   @Get()

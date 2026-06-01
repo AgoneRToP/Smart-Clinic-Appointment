@@ -13,6 +13,7 @@ import { Doctor, DoctorSchema } from "../doctors";
     ])
   ],
   providers: [SchedulesService],
-  controllers: [SchedulesController]
+  controllers: [SchedulesController],
+  exports: [SchedulesService],
 })
 export class SchedulesMudule {}

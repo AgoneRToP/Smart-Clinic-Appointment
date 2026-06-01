@@ -1,47 +1,76 @@
-<div class="page-header"><h1>🏥 Smart Clinic</h1><p>Современная медицинская система</p></div>
-<div class="card p-4">
 <div class="row justify-content-center mt-4">
-  <div class="col-md-8">
+  <div class="col-md-7">
     <div class="card shadow border-0 p-4">
-      <h3 class="fw-bold text-primary mb-3">📅 Запись на прием к врачу</h3>
-      <p class="text-muted">Заполните форму ниже, чтобы отправить заявку на бронирование времени.</p>
-      <hr>
+      <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+          <h3 class="fw-bold text-success mb-1">📅 Оформление визита пациента</h3>
+          <p class="text-muted mb-0">Начните вводить имя или почту пациента для быстрого поиска в базе.</p>
+        </div>
+        <a href="/profile" class="btn btn-outline-secondary px-3 rounded-3">↩ В профиль</a>
+      </div>
 
       <form action="/appointments/book" method="POST">
-        <!-- Выбор врача -->
+        
+        <!-- 🔍 ИНТЕЛЛЕКТУАЛЬНЫЙ ПОИСК ПАЦИЕНТА (Вместо обычного Select) -->
         <div class="mb-4">
-          <label for="doctor_id" class="form-label fw-bold text-secondary">Выберите специалиста</label>
-          <select name="doctor_id" id="doctor_id" class="form-select form-select-lg" required>
-            <option value="" disabled selected>-- Выберите врача из списка --</option>
-            {{#each doctors}}
-              <option value="{{this._id}}">
-                {{this.user_id.full_name}} — {{this.specialization}} (Кабинет {{this.room_number}})
-              </option>
+          <label for="patient_search" class="form-label fw-bold text-secondary mb-2">Найти и выбрать пациента</label>
+          
+          <!-- Текстовое поле, привязанное к списку пациентов -->
+          <input 
+            list="patients_list" 
+            id="patient_search" 
+            class="form-control form-control-lg bg-white shadow-sm" 
+            placeholder="Введите первые буквы ФИО или Email..."
+            required
+          >
+          
+          <!-- Скрытое поле, которое физически отправит ID выбранного пациента на бэкенд в DTO -->
+          <input type="hidden" name="patient_id" id="patient_id_hidden">
+
+          <!-- Динамический список вариантов для автоподстановки браузером -->
+          <datalist id="patients_list">
+            {{#each patients}}
+              <option data-id="{{this._id}}" value="{{this.full_name}} ({{this.email}})"></option>
             {{/each}}
-          </select>
+          </datalist>
+          <div class="form-text text-muted small">Если пациента нет в списке, его необходимо сначала зарегистрировать в системе.</div>
         </div>
 
-        <!-- Выбор даты и времени -->
+        <!-- Выбор даты и времени визита -->
         <div class="mb-4">
-          <label for="appointment_date" class="form-label fw-bold text-secondary">Дата и время визита</label>
+          <label for="appointment_date" class="form-label fw-bold text-secondary mb-2">Дата и время приема</label>
           <input 
             type="datetime-local" 
             name="appointment_date" 
-            id="appointment_date" 
-            class="form-control form-control-lg" 
+            id="appointment_date"
+            class="form-control form-control-lg bg-white shadow-sm" 
             required
           >
-          <div class="form-text text-muted">Пожалуйста, выбирайте рабочие часы врача в соответствии с расписанием клиники.</div>
         </div>
 
-        <!-- Кнопки управления -->
-        <div class="d-flex gap-3 justify-content-end mt-5">
-          <a href="/profile" class="btn btn-outline-secondary btn-lg px-4">Назад в профиль</a>
-          <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm">Забронировать</button>
-        </div>
+        <!-- Кнопка фиксации -->
+        <button type="submit" class="btn btn-success btn-lg w-100 shadow mt-3 py-3 rounded-3 fw-bold">
+          🚀 Зафиксировать прием пациента
+        </button>
       </form>
     </div>
   </div>
 </div>
 
-</div>
+<!-- Маленький JS-скрипт, который на лету вытаскивает скрытый MongoDB _id из выбранной строки datalist -->
+<script>
+  document.getElementById('patient_search').addEventListener('input', function(e) {
+    const inputValue = e.target.value;
+    const options = document.querySelectorAll('#patients_list option');
+    const hiddenInput = document.getElementById('patient_id_hidden');
+    
+    hiddenInput.value = ''; // Сбрасываем значение, если совпадение не найдено
+    
+    for (let i = 0; i < options.length; i++) {
+      if (options[i].value === inputValue) {
+        hiddenInput.value = options[i].getAttribute('data-id');
+        break;
+      }
+    }
+  });
+</script>

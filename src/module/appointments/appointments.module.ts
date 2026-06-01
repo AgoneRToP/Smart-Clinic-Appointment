@@ -5,6 +5,7 @@ import { DoctorsModule } from '../doctors';
 import { AppointmentsService } from './appointments.service';
 import { AppointmentsController } from './appointments.controller';
 import { TelegramModule } from '@/bot';
+import { UsersModule } from '../users';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { TelegramModule } from '@/bot';
     ]),
     DoctorsModule,
     TelegramModule,
+    UsersModule,
   ],
   providers: [AppointmentsService],
   controllers: [AppointmentsController],

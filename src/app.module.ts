@@ -1,7 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import {
-  Appointment,
+  AppointmentsModule,
   AuthModule,
   DepartmentsModule,
   DoctorsModule,
@@ -16,6 +16,7 @@ import { TelegramModule } from './bot';
 import { AppController } from './app.controller';
 import { NextFunction } from 'express';
 
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -29,7 +30,7 @@ import { NextFunction } from 'express';
     DoctorsModule,
     SchedulesMudule,
     DepartmentsModule,
-    Appointment,
+    AppointmentsModule,
     TelegramModule,
   ],
   controllers: [AppController],

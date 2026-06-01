@@ -32,7 +32,6 @@ export class AuthService {
       throw new NotFoundException('Пользователь не найден');
     }
 
-    // ✅ FIX: Email aktivatsiyasini tekshirish
     if (existing.is_active !== UserStatuses.Active) {
       throw new UnauthorizedException(
         'Аккаунт не активирован. Проверьте вашу почту.',
@@ -80,45 +79,103 @@ export class AuthService {
   }
 
   async register(payload: RegisterDto, res: Response) {
-    const existing = await this.userModel.findOne({ email: payload.email });
-
+    const existing = await this.userModel.findOne({
+      email: payload.email.toLowerCase(),
+    });
     if (existing) {
       throw new ConflictException('Пользователь с таким email уже существует!');
     }
 
     const hashedPass = await this.hashPass(payload.password);
 
-    const activationToken = await this.jwtService.signAsync(
-      { email: payload.email },
+    const pinCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const cryptoToken = await this.jwtService.signAsync(
+      { email: payload.email.toLowerCase(), code: pinCode },
       {
         secret: this.configService.get('jwt.access_key'),
         expiresIn: '15m',
       },
     );
 
-    const user = await this.userModel.create({
+    await this.userModel.create({
       full_name: payload.full_name,
-      email: payload.email,
+      email: payload.email.toLowerCase(),
       password: hashedPass,
       is_active: UserStatuses.Inactive,
+      profile: cryptoToken,
     });
 
-    this.mailService.sendActivationEmail(
-      user.email,
-      user.full_name,
-      activationToken,
+    await this.mailService.sendActivationEmail(
+      payload.email.toLowerCase(),
+      payload.full_name,
+      pinCode,
     );
 
     const acceptHeader = res.req?.headers['accept'];
     if (acceptHeader && acceptHeader.includes('text/html')) {
-      // ✅ FIX: register dan keyin profile emas, verify-email sahifasiga yo'naltirish
-      return res.redirect('/auth/verify-email');
+      return res.render('auth/verify-email', {
+        layout: 'layouts/main',
+        title: 'Подтвердите Email',
+        email: payload.email.toLowerCase(),
+      });
     }
 
     return res.json({
       success: true,
-      // ✅ FIX: existing emas, yangi yaratilgan user qaytariladi
-      data: user,
+      message: 'Код активации отправлен на вашу почту.',
+    });
+  }
+
+  async activateWithPin(email: string, pin: string, res: Response) {
+    const user = await this.userModel
+      .findOne({ email: email.toLowerCase() })
+      .exec();
+
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+
+    try {
+      const payload = await this.jwtService.verifyAsync(user.profile || '', {
+        secret: this.configService.get('jwt.access_key'),
+      });
+
+      if (payload.code !== pin.trim()) {
+        throw new BadRequestException('Неверный PIN-код. Проверьте почту.');
+      }
+    } catch (err) {
+      throw new BadRequestException(
+        'Код активации недействителен или его срок действия (15 мин) истек.',
+      );
+    }
+
+    user.is_active = UserStatuses.Active;
+    user.profile = '';
+    await user.save();
+
+    const tokenPayload = { id: user.id, role: user.role };
+    const accessToken = await this.generateAccessToken(tokenPayload);
+    const refreshToken = await this.generateRefreshToken(tokenPayload);
+
+    res.cookie('accessToken', accessToken, {
+      signed: true,
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      expires: new Date(Date.now() + 3600 * 1000),
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+      signed: true,
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+    });
+
+    return res.render('auth/activation-success', {
+      layout: 'layouts/main',
+      title: 'Успешная активация',
     });
   }
 
@@ -128,7 +185,9 @@ export class AuthService {
         secret: this.configService.get('jwt.access_key'),
       });
 
-      const user = await this.userModel.findOne({ email: payload.email }).exec();
+      const user = await this.userModel
+        .findOne({ email: payload.email })
+        .exec();
 
       if (!user) {
         throw new NotFoundException('Пользователь не найден');

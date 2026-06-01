@@ -1,85 +1,156 @@
-<div class="page-header"><h1>🏥 Smart Clinic</h1><p>Современная медицинская система</p></div>
-<div class="card p-4">
-<div class="row g-4 mt-2">
-  <!-- Форма 1: Создание отделения -->
-  <div class="col-md-5">
-    <div class="card shadow border-0 p-4 mb-4">
-      <h5 class="fw-bold text-danger mb-3">➕ Создать отделение</h5>
-      <form action="/departments" method="POST">
-        <div class="mb-3">
-          <label class="form-label small fw-bold">Название направления</label>
-          <input type="text" name="name" class="form-control" placeholder="Например: Кардиология" required>
-        </div>
-        <button type="submit" class="btn btn-danger w-100 shadow-sm">Добавить отделение</button>
-      </form>
+<div class="container py-4">
+  <!-- Верхняя плашка -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div>
+      <h2 class="fw-bold text-dark mb-1">🏥 Регистрация и управление персоналом</h2>
+      <p class="text-muted mb-0">Создавайте учетные записи новых врачей клиники с автоматической привязкой к кабинетам.</p>
     </div>
-
-    <!-- Форма 2: Назначение доктора -->
-    <div class="card shadow border-0 p-4">
-      <h5 class="fw-bold text-primary mb-3">👨‍⚕️ Назначить нового врача</h5>
-      <form action="/admin/doctors/assign" method="POST">
-        <div class="mb-3">
-          <label class="form-label small fw-bold">Выберите пользователя системы</label>
-          <select name="user_id" class="form-select" required>
-            {{#each users}}
-              <option value="{{this._id}}">{{this.full_name}} ({{this.email}})</option>
-            {{/each}}
-          </select>
-        </div>
-        <div class="mb-3">
-          <label class="form-label small fw-bold">Специализация</label>
-          <input type="text" name="specialization" class="form-control" placeholder="cardiologist" required>
-        </div>
-        <div class="mb-3">
-          <label class="form-label small fw-bold">Уровень опыта</label>
-          <select name="experience" class="form-select" required>
-            <option value="Entry-level">Entry-level</option>
-            <option value="Mid-level">Mid-level</option>
-            <option value="Senior">Senior</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label class="form-label small fw-bold">Номер кабинета</label>
-          <input type="text" name="room_number" class="form-control" placeholder="Кабинет № 204" required>
-        </div>
-        <button type="submit" class="btn btn-primary w-100 shadow-sm">Подтвердить назначение</button>
-      </form>
-    </div>
+    <a href="/profile" class="btn btn-outline-secondary px-3">↩ Назад в профиль</a>
   </div>
 
-  <!-- Таблица: Список текущих докторов клиники -->
-  <div class="col-md-7">
-    <div class="card shadow border-0 p-4 h-100">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h5 class="fw-bold text-dark mb-0">🏥 Действующие врачи клиники</h5>
-        <a href="/profile" class="btn btn-sm btn-outline-secondary">В профиль</a>
+  <div class="row g-4">
+    <!-- ЛЕВАЯ КОЛОНКА: Формы создания -->
+    <div class="col-lg-5">
+      
+      <!-- ФОРМА 1: Создание отделения -->
+      <div class="card shadow border-0 p-4 mb-4">
+        <h5 class="fw-bold text-danger mb-3">➕ Создать новое отделение</h5>
+        <form action="/departments" method="POST">
+          <div class="mb-3">
+            <label for="dept_name" class="form-label small fw-bold text-secondary">Название медицинского направления</label>
+            <input type="text" name="name" id="dept_name" class="form-control" placeholder="Например: Офтальмология" required>
+          </div>
+          <button type="submit" class="btn btn-danger w-100 shadow-sm">Добавить отделение</button>
+        </form>
       </div>
-      <div class="table-responsive">
-        <table class="table table-striped align-middle border">
-          <thead class="table-dark">
-            <tr>
-              <th>Имя специалиста</th>
-              <th>Специализация</th>
-              <th>Кабинет</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#each doctors}}
+
+      <!-- ФОРМА 2: Прямое создание врача и его аккаунта -->
+      <div class="card shadow border-0 p-4 sticky-top" style="top: 20px; z-index: 10;">
+        <h4 class="fw-bold text-primary mb-3">👨‍⚕️ Зарегистрировать врача</h4>
+        <p class="text-muted small mb-4">Внесите личные и рабочие данные. Аккаунт создастся со стандартным паролем <code>ClinicDoctor2026!</code></p>
+        
+        <form action="/admin/doctors/assign" method="POST">
+          
+          <!-- ФИО Врача -->
+          <div class="mb-3">
+            <label for="full_name" class="form-label small fw-bold text-secondary">Полное имя врача (ФИО)</label>
+            <input type="text" name="full_name" id="full_name" class="form-control" placeholder="Проф. Петров Петр Петрович" required>
+          </div>
+
+          <!-- Email Врача -->
+          <div class="mb-3">
+            <label for="email" class="form-label small fw-bold text-secondary">Рабочий Email адрес</label>
+            <input type="email" name="email" id="email" class="form-control" placeholder="petrov@smartclinic.com" required>
+          </div>
+
+          <!-- Пароль Врача -->
+          <div class="mb-3">
+            <label for="password" class="form-label small fw-bold text-secondary">Временный пароль для входа врача</label>
+            <input 
+              type="text" 
+              name="password" 
+              id="password" 
+              class="form-control" 
+              placeholder="Придумайте надежный пароль (мин. 8 символов)" 
+              required
+            >
+            <div class="form-text text-muted small">Передайте этот пароль доктору лично для его первой авторизации.</div>
+          </div>
+
+          <!-- Выбор отделения из базы -->
+          <div class="mb-3">
+            <label for="department_id" class="form-label small fw-bold text-secondary">Закрепить за отделением</label>
+            <select name="department_id" id="department_id" class="form-select" required>
+              <option value="" disabled selected>-- Выберите созданное отделение --</option>
+              {{#each departments}}
+                <option value="{{this._id}}">🏢 {{this.name}}</option>
+              {{else}}
+                <option value="" disabled>🚨 Сначала создайте отделения формой выше!</option>
+              {{/each}}
+            </select>
+          </div>
+
+          <!-- Специализация из Enum -->
+          <div class="mb-3">
+            <label for="specialization" class="form-label small fw-bold text-secondary">Специализация (Enum)</label>
+            <select name="specialization" id="specialization" class="form-select" required>
+              <option value="" disabled selected>-- Выберите специальность --</option>
+              <option value="cardiologist">Кардиолог (Cardiologist)</option>
+              <option value="pediatrician">Педиатр (Pediatrician)</option>
+              <option value="neurologist">Невролог (Neurologist)</option>
+              <option value="dermatologist">Дерматолог (Dermatologist)</option>
+              <option value="therapist">Терапевт (Therapist)</option>
+              <option value="surgeon">Хирург (Surgeon)</option>
+              <option value="ophthalmologist">Офтальмолог (Ophthalmologist)</option>
+              <option value="dentist">Стоматолог (Dentist)</option>
+            </select>
+          </div>
+
+          <div class="row g-2">
+            <div class="col-sm-6 mb-3">
+              <label for="experience" class="form-label small fw-bold text-secondary">Уровень опыта</label>
+              <select name="experience" id="experience" class="form-select" required>
+                <option value="Entry-level">Entry-level</option>
+                <option value="Mid-level">Mid-level</option>
+                <option value="Senior">Senior</option>
+              </select>
+            </div>
+            <div class="col-sm-6 mb-3">
+              <label for="room_number" class="form-label small fw-bold text-secondary">Номер кабинета</label>
+              <input type="text" name="room_number" id="room_number" class="form-control" placeholder="304" required>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-clinic-primary w-100 shadow-sm mt-2">
+            🚀 Создать аккаунт и активировать врача
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- ПРАВАЯ КОЛОНКА: Таблица врачей -->
+    <div class="col-lg-7">
+      <div class="card shadow border-0 p-4 h-100">
+        <h4 class="fw-bold text-dark mb-3">📋 Действующие врачи клиники</h4>
+        <p class="text-muted small mb-4">Список синхронизирован с MongoDB коллекцией «doctors».</p>
+
+        <div class="table-responsive">
+          <table class="table table-hover align-middle border rounded-3 overflow-hidden">
+            <thead class="table-dark">
               <tr>
-                <td class="fw-bold text-primary">{{this.user_id.full_name}}</td>
-                <td><span class="badge bg-secondary">{{this.specialization}}</span></td>
-                <td class="fw-semibold">{{this.room_number}}</td>
+                <th class="ps-3">Врач</th>
+                <th>Специализация</th>
+                <th>Кабинет</th>
+                <th class="pe-3">Стаж</th>
               </tr>
-            {{else}}
-              <tr>
-                <td colspan="3" class="text-center py-4 text-muted">Врачи еще не назначены.</td>
-              </tr>
-            {{/each}}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {{#each doctors}}
+                <tr>
+                  <td class="ps-3 py-3">
+                    <div class="fw-bold text-primary">{{this.user_id.full_name}}</div>
+                    <div class="text-muted small" style="font-size: 0.8rem;">{{this.user_id.email}}</div>
+                  </td>
+                  <td>
+                    <span class="badge bg-secondary px-2 py-1 small fw-medium">
+                      {{translateSpecialization this.specialization}}
+                    </span>
+                  </td>
+                  <td class="fw-semibold text-dark">🚪 Каб. {{this.room_number}}</td>
+                  <td class="pe-3 text-secondary small">{{this.experience}}</td>
+                </tr>
+              {{else}}
+                <tr>
+                  <td colspan="4" class="text-center py-5 text-muted fs-5">
+                    📭 В базе данных пока нет назначенных врачей. Используйте форму слева!
+                  </td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
-</div>
-
 </div>

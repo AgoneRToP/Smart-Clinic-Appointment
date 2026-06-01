@@ -32,7 +32,6 @@ export class AuthController {
     return { title: 'Регистрация' };
   }
 
-  // ✅ FIX: verify-email sahifasi qo'shildi
   @Protected(false)
   @Get('/verify-email')
   @Render('auth/verify-email')
@@ -52,6 +51,16 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async register(@Body() payload: RegisterDto, @Res() res: Response) {
     await this.service.register(payload, res);
+  }
+
+  @Protected(false)
+  @Post('/activate-pin')
+  async activatePin(
+    @Body('email') email: string,
+    @Body('pin') pin: string,
+    @Res() res: Response,
+  ) {
+    await this.service.activateWithPin(email, pin, res);
   }
 
   @Protected(false)

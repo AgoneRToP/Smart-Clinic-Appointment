@@ -1,0 +1,76 @@
+<div class="card shadow border-0 p-4 mt-4">
+  <!-- Верхняя плашка -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div>
+      <h3 class="fw-bold text-danger mb-1">👥 База данных пользователей системы</h3>
+      <p class="text-muted mb-0">Контролируйте учетные записи сотрудников и пациентов клиники. Изменяйте роли пользователей на лету.</p>
+    </div>
+    <a href="/profile" class="btn btn-outline-secondary px-3 rounded-3">↩ Назад в профиль</a>
+  </div>
+
+  <!-- Таблица пользователей -->
+  <div class="table-responsive">
+    <table class="table table-hover align-middle border rounded-3 overflow-hidden">
+      <thead class="table-dark">
+        <tr>
+          <th class="ps-3">#</th>
+          <th>Полное имя (ФИО)</th>
+          <th>Электронная почта</th>
+          <th>Статус аккаунта</th>
+          <th>Текущая роль</th>
+          <th class="text-center pe-3" style="width: 250px;">Изменить роль на</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each users}}
+          <tr>
+            <td class="fw-bold ps-3">{{inc @index}}</td>
+            <td class="fw-semibold text-dark">{{this.full_name}}</td>
+            <td class="text-secondary">{{this.email}}</td>
+            <td>
+              {{#ifCond this.is_active '===' 'Active'}}
+                <span class="badge bg-success-subtle text-success px-2.5 py-1.5 rounded shadow-sm">● Активен</span>
+              {{else}}
+                {{#ifCond this.is_active '===' 'active'}}
+                  <span class="badge bg-success-subtle text-success px-2.5 py-1.5 rounded shadow-sm">● Активен</span>
+                {{else}}
+                  <span class="badge bg-warning-subtle text-warning px-2.5 py-1.5 rounded shadow-sm">⏳ Не активирован</span>
+                {{/ifCond}}
+              {{/ifCond}}
+            </td>
+            <td>
+              {{#ifCond this.role '===' 'admin'}}
+                <span class="badge bg-danger px-3 py-1.5 rounded shadow-sm">Администратор</span>
+              {{/ifCond}}
+              {{#ifCond this.role '===' 'doctor'}}
+                <span class="badge bg-success px-3 py-1.5 rounded shadow-sm">Врач клиники</span>
+              {{/ifCond}}
+              {{#ifCond this.role '===' 'patient'}}
+                <span class="badge bg-primary px-3 py-1.5 rounded shadow-sm">Пациент</span>
+              {{/ifCond}}
+            </td>
+            <td class="text-center pe-3">
+              <!-- Форма мгновенного изменения роли (Отправляет POST запрос) -->
+                <form action="/admin/users/change-role" method="POST" class="d-flex gap-2">
+  
+                    <input type="hidden" name="userId" value="{{this._id}}">
+                    
+                    <select name="role" class="form-select form-select-sm" required>
+                        <option value="" disabled selected>-- Смена роли --</option>
+                        <option value="patient">patient (Пациент)</option>
+                        <option value="doctor">doctor (Врач)</option>
+                        <option value="admin">admin (Администратор)</option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-outline-dark px-2 rounded-3 shadow-sm">Применить</button>
+                </form>
+            </td>
+          </tr>
+        {{else}}
+          <tr>
+            <td colspan="6" class="text-center py-5 text-muted fs-5">📭 В базе данных MongoDB нет зарегистрированных пользователей.</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</div>

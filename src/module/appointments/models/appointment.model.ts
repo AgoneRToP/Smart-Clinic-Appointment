@@ -16,11 +16,14 @@ export class Appointment {
   appointment_date: Date;
 
   @Prop({
-      type: SchemaTypes.String,
-      enum: Object.values(AppointmentStatuses),
-      default: AppointmentStatuses.Pending,
-    })
+    type: SchemaTypes.String,
+    enum: Object.values(AppointmentStatuses),
+    default: AppointmentStatuses.Pending,
+  })
   status: AppointmentStatuses;
+
+  @Prop({ type: String, required: false, default: 'Заявка от пациента' })
+  comment: string;
 }
 
 export const AppointmentSchema = SchemaFactory.createForClass(Appointment);

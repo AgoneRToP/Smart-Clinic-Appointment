@@ -1,71 +1,156 @@
-<div class="page-header"><h1>🏥 Smart Clinic</h1><p>Современная медицинская система</p></div>
-<div class="card p-4">
-<div class="card shadow border-0 p-4 mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+<div class='card shadow border-0 p-4 mt-4'>
+  <div
+    class='d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom'
+  >
     <div>
-      <h3 class="fw-bold text-success mb-1">📝 Журнал приемов пациентов</h3>
-      <p class="text-muted mb-0">Управляйте заявками и контролируйте текущую загруженность.</p>
+      <h3 class='fw-bold text-success mb-1'>📝 Журнал приемов пациентов</h3>
+      <p class='text-muted mb-0'>Контролируйте текущую загруженность и
+        распределяйте время для входящих заявок.</p>
     </div>
-    <a href="/profile" class="btn btn-outline-success">В личный кабинет</a>
+    <a href='/profile' class='btn btn-outline-success px-3 rounded-3'>↩ В личный
+      кабинет</a>
   </div>
 
-  <div class="table-responsive">
-    <table class="table table-hover align-middle border">
-      <thead class="table-success">
+  <div class='table-responsive'>
+    <table
+      class='table table-hover align-middle border rounded-3 overflow-hidden'
+    >
+      <thead class='table-success'>
         <tr>
-          <th>#</th>
+          <th class='ps-3' style='width: 50px;'>#</th>
           <th>Пациент</th>
-          <th>Email</th>
-          <th>Дата и время</th>
-          <th>Статус</th>
-          <th class="text-center">Действия</th>
+          <th>Email адрес</th>
+          <th>Жалобы / Комментарий</th>
+          <th>Назначенное время</th>
+          <th class='text-center pe-3' style='min-width: 320px;'>Действия
+            (Назначить дату)</th>
         </tr>
       </thead>
       <tbody>
         {{#each appointments}}
           <tr>
-            <td class="fw-bold">{{@index + 1}}</td>
-            <td>{{this.patient_id.full_name}}</td>
-            <td>{{this.patient_id.email}}</td>
-            <td class="fw-semibold text-secondary">{{this.appointment_date}}</td>
+            <td class='fw-bold ps-3'>{{inc @index}}</td>
+            <td class='fw-semibold text-dark'>👤
+              {{this.patient_id.full_name}}</td>
+            <td class='text-secondary small'>{{this.patient_id.email}}</td>
             <td>
-              {{#ifCond this.status '===' 'Pending'}}
-                <span class="badge bg-warning text-dark px-2 py-1">⏳ Ожидает</span>
-              {{/ifCond}}
-              {{#ifCond this.status '===' 'Scheduled'}}
-                <span class="badge bg-success px-2 py-1">✅ Одобрен</span>
-              {{/ifCond}}
-              {{#ifCond this.status '===' 'Canceled'}}
-                <span class="badge bg-danger px-2 py-1">❌ Отменен</span>
+              <div
+                class='p-2 bg-light rounded text-muted small border-start border-3 border-info'
+              >
+                {{#if this.comment}}
+                  {{this.comment}}
+                {{else}}
+                  <span class='text-muted italic'>Заявка на подбор времени</span>
+                {{/if}}
+              </div>
+            </td>
+            <td>
+              {{#ifCond this.status '===' 'pending'}}
+                <span class='text-warning small fw-bold'>⏳ Время не назначено</span>
+              {{else}}
+                <span class='fw-bold text-secondary'>🕒
+                  {{this.appointment_date}}</span>
               {{/ifCond}}
             </td>
-            <td class="text-center">
-              {{#ifCond this.status '===' 'Pending'}}
-                <div class="d-flex gap-2 justify-content-center">
-                  <!-- Форма одобрения -->
-                  <form action="/appointments/{{this._id}}/status?_method=PATCH" method="POST" class="d-inline">
-                    <input type="hidden" name="status" value="Scheduled">
-                    <button type="submit" class="btn btn-sm btn-success px-3">Одобрить</button>
+            <td class='text-center pe-3'>
+
+              <!-- Чистая и стабильная проверка на pending -->
+              {{#ifCond this.status '===' 'pending'}}
+
+                <div
+                  class='d-flex flex-column gap-2 p-2 bg-light rounded border shadow-sm'
+                >
+                  <!-- ФОРМА 1: УТВЕРЖДЕНИЕ ПРИЕМА -->
+                  <form
+                    action='/appointments/{{this._id}}/status'
+                    method='POST'
+                    class='text-start'
+                  >
+                    <!-- ИСПРАВЛЕНО: 'scheduled' заменено на 'Scheduled' -->
+                    <input type='hidden' name='status' value='Scheduled' />
+
+                    <div class='mb-2'>
+                      <label
+                        class='form-label text-xs fw-bold text-muted mb-1'
+                        style='font-size: 0.75rem;'
+                      >📅 Выберите дату приема:</label>
+                      <input
+                        type='datetime-local'
+                        name='appointment_date'
+                        class='form-control form-control-sm'
+                        required
+                      />
+                    </div>
+
+                    <button
+                      type='submit'
+                      class='btn btn-sm btn-success w-100 rounded-3 fw-medium'
+                    >
+                      ✅ Утвердить дату
+                    </button>
                   </form>
-                  <!-- Форма отмены -->
-                  <form action="/appointments/{{this._id}}/status?_method=PATCH" method="POST" class="d-inline">
-                    <input type="hidden" name="status" value="Canceled">
-                    <button type="submit" class="btn btn-sm btn-outline-danger px-3">Отклонить</button>
+
+                  <!-- ФОРМА 2: ОТКЛОНЕНИЕ ПРИЕМА -->
+                  <form
+                    action='/appointments/{{this._id}}/status'
+                    method='POST'
+                    class='m-0'
+                  >
+                    <!-- ИСПРАВЛЕНО: 'canceled' заменено на 'Canceled' -->
+                    <input type='hidden' name='status' value='Canceled' />
+                    <button
+                      type='submit'
+                      class='btn btn-sm btn-outline-danger w-100 rounded-3'
+                    >
+                      Отклонить заявку
+                    </button>
                   </form>
                 </div>
+
               {{else}}
-                <span class="text-muted small">Решение принято</span>
+
+                <!-- Если статус одобрен -->
+                {{#ifCond this.status '===' 'scheduled'}}
+                  <span
+                    class='badge bg-success px-3 py-2 rounded-pill shadow-sm'
+                  >✅ Прием одобрен</span>
+                {{/ifCond}}
+
+                <!-- Если статус отменен -->
+                {{#ifCond this.status '===' 'canceled'}}
+                  <div
+                    class='d-flex align-items-center justify-content-center gap-2'
+                  >
+                    <span
+                      class='badge bg-danger px-3 py-2 rounded-pill shadow-sm'
+                    >❌ Отклонен</span>
+                    <form
+                      action='/appointments/{{this._id}}/status'
+                      method='POST'
+                      class='d-inline m-0'
+                    >
+                      <!-- ИСПРАВЛЕНО: 'pending' заменено на 'Pending' -->
+                      <input type='hidden' name='status' value='Pending' />
+                      <button
+                        type='submit'
+                        class='btn btn-xs btn-outline-secondary btn-sm px-2 py-0.5 rounded'
+                      >
+                        Вернуть в обработку
+                      </button>
+                    </form>
+                  </div>
+                {{/ifCond}}
+
               {{/ifCond}}
             </td>
           </tr>
         {{else}}
           <tr>
-            <td colspan="6" class="text-center py-5 text-muted fs-5">📭 На данный момент заявок от пациентов нет.</td>
+            <td colspan='6' class='text-center py-5 text-muted fs-5'>📭 Входящих
+              заявок от пациентов пока нет. Журнал пуст.</td>
           </tr>
         {{/each}}
       </tbody>
     </table>
   </div>
-</div>
-
 </div>

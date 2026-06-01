@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Department, DepartmentSchema } from './models'; // Проверьте пути
+import { Department, DepartmentSchema } from './models';
 import { DepartmentsService } from './departments.service';
 import { DepartmentsController } from './departments.controller';
 

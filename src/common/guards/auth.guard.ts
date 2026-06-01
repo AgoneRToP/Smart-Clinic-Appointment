@@ -5,19 +5,24 @@ import {
   InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
+import { Reflector, ModuleRef } from '@nestjs/core'; // ДОБАВЛЕН ModuleRef
 import type { Request, Response } from 'express';
 import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UserRoles } from '@/core/constants/constants';
 import { Protected } from '../decorators/protected.decorator';
+import { UsersService } from '@/module/users/users.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
+  private usersService: UsersService;
+
   constructor(
     private readonly reflector: Reflector,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    // Внедряем ModuleRef вместо прямого UsersService, чтобы изолированные модули не падали
+    private readonly moduleRef: ModuleRef, 
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -41,13 +46,34 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('No tokens provided');
     }
 
+    // Декодируем JWT токен
     const decoded = await this.verifyAndRefreshToken(
       accessToken,
       refreshToken,
       response,
     );
 
-    request.user = decoded;
+    // ДИНАМИЧЕСКИЙ ЛАЗИ-ИМПОРТ: Запрашиваем UsersService из контекста приложения на лету
+    if (!this.usersService) {
+      this.usersService = this.moduleRef.get(UsersService, { strict: false });
+    }
+
+    // Запрашиваем данные о статусе из MongoDB
+    const userResponse = await this.usersService.getOne(decoded.id);
+    const dbUser = userResponse?.data || userResponse;
+
+    if (!dbUser) {
+      throw new UnauthorizedException('Пользователь не найден в системе клиники');
+    }
+
+    // Проверка активности без учёта регистра букв
+    const status = String(dbUser.is_active || '').toLowerCase();
+    if (status !== 'active') {
+      throw new UnauthorizedException('Аккаунт не активирован. Проверьте вашу почту.');
+    }
+
+    // Сохраняем чистый JSON
+    request.user = JSON.parse(JSON.stringify(dbUser));
     return true;
   }
 
@@ -63,11 +89,9 @@ export class AuthGuard implements CanActivate {
         if (error instanceof TokenExpiredError && refreshToken) {
           return await this.refreshAccessToken(refreshToken, response);
         }
-
         if (error instanceof JsonWebTokenError) {
           throw new UnauthorizedException('Access token is invalid');
         }
-
         throw error;
       }
     }
@@ -82,13 +106,8 @@ export class AuthGuard implements CanActivate {
   private async verifyAccessToken(
     token: string,
   ): Promise<{ id: string; role: UserRoles }> {
-    try {
-      const secretKey = this.configService.get<string>('jwt.access_key');
-      return await this.jwtService.verifyAsync(token, { secret: secretKey });
-    } catch (error) {
-      console.error('🚨 Ошибка валидации токена в AuthGuard:', error);
-      throw new UnauthorizedException('Invalid token');
-    }
+    const secretKey = this.configService.get<string>('jwt.access_key');
+    return await this.jwtService.verifyAsync(token, { secret: secretKey });
   }
 
   private async refreshAccessToken(
@@ -99,14 +118,12 @@ export class AuthGuard implements CanActivate {
       const secretKey = this.configService.get<string>('jwt.refresh_key');
       const { exp, iat, ...clean } = await this.jwtService.verifyAsync(
         refreshToken,
-        {
-          secret: secretKey,
-        },
+        { secret: secretKey },
       );
 
       const newAccessToken = await this.generateAccessToken(clean);
-
       const isProd = this.configService.get('NODE_ENV') === 'production';
+      
       response.cookie('accessToken', newAccessToken, {
         signed: true,
         httpOnly: true,
@@ -121,11 +138,8 @@ export class AuthGuard implements CanActivate {
       return clean;
     } catch (error: unknown) {
       if (error instanceof TokenExpiredError) {
-        throw new UnauthorizedException(
-          'Refresh token has expired. Please log in again.',
-        );
+        throw new UnauthorizedException('Refresh token has expired. Please log in again.');
       }
-
       if (error instanceof JsonWebTokenError) {
         throw new UnauthorizedException('Refresh token is invalid');
       }
@@ -134,10 +148,7 @@ export class AuthGuard implements CanActivate {
     }
   }
 
-  private async generateAccessToken(payload: {
-    id: string;
-    role: UserRoles;
-  }): Promise<string> {
+  private async generateAccessToken(payload: { id: string; role: UserRoles }): Promise<string> {
     return this.jwtService.signAsync(payload, {
       secret: this.configService.get('jwt.access_key'),
       expiresIn: `${this.configService.get<number>('jwt.access_time') || 3600}s`,

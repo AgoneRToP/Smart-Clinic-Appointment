@@ -1,7 +1,7 @@
 import { Update, Start, Command, Ctx, Hears } from 'nestjs-telegraf';
 import { Context } from 'telegraf';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { User } from '@/module/users';
 import { Appointment } from '@/module/appointments';
 import { AppointmentStatuses } from '@/core/constants';
@@ -18,8 +18,8 @@ export class TelegramUpdate {
     try {
       await ctx.reply(
         `👋 <b>Добро пожаловать в Smart Clinic!</b>\n\n` +
-        `Чтобы связать этот аккаунт со своим профилем в клинике, отправьте вашу электронную почту в формате:\n` +
-        `<code>email:axewarred@gmail.com</code>`,
+        `Чтобы безопасно связать этот аккаунт со своим профилем в клинике, введите вашу почту, зарегистрированную на сайте, в формате:\n` +
+        `<code>email:example@clinic.com</code>`,
         { parse_mode: 'HTML' }
       );
     } catch (err) {
@@ -33,7 +33,7 @@ export class TelegramUpdate {
       await ctx.reply(
         `📋 <b>Доступные команды:</b>\n\n` +
         `/start — Перезапустить бота и авторизоваться\n` +
-        `/myappointments — Список ваших предстоящих приемов\n` +
+        `/myappointments — Список ваших подтвержденных приемов\n` +
         `/help — Показать это меню`,
         { parse_mode: 'HTML' }
       );
@@ -55,7 +55,7 @@ export class TelegramUpdate {
     const parts = messageText.split(':');
     
     if (parts.length < 2) {
-      await ctx.reply('❌ Неверный формат. Отправьте в формате: email:axewarred@gmail.com');
+      await ctx.reply('❌ Неверный формат. Отправьте в формате: email:example@clinic.com');
       return;
     }
     
@@ -69,10 +69,11 @@ export class TelegramUpdate {
         return;
       }
 
+      // Привязываем Telegram ID к пользователю в MongoDB
       user.telegram_id = telegramId;
       await user.save();
 
-      await ctx.reply(`✅ Отлично, <b>${user.full_name}</b>! Ваш аккаунт успешно привязан к Telegram-боту.`, { parse_mode: 'HTML' });
+      await ctx.reply(`✅ Отлично, <b>${user.full_name}</b>! Ваш аккаунт успешно привязан к Telegram-боту. Теперь вы сможете проверять свои записи с помощью команды /myappointments.`, { parse_mode: 'HTML' });
     } catch (error) {
       console.error('Ошибка привязке Telegram:', error);
       await ctx.reply('🚨 Произошла внутренняя ошибка базы данных при привязке аккаунта.');
@@ -89,6 +90,7 @@ export class TelegramUpdate {
     }
 
     try {
+      // Ищем пользователя по Telegram ID
       const user = await this.userModel.findOne({ telegram_id: telegramId }).exec();
 
       if (!user) {
@@ -96,10 +98,11 @@ export class TelegramUpdate {
         return;
       }
 
+      // Вытаскиваем только подтвержденные врачом (scheduled) приемы пациента
       const appointments = await this.appointmentModel
         .find({ 
-          patient_id: user._id as any, 
-          status: { $in: [AppointmentStatuses.Pending, AppointmentStatuses.Scheduled] } 
+          patient_id: new Types.ObjectId(user.id) as any, 
+          status: AppointmentStatuses.Scheduled 
         })
         .populate({ 
           path: 'doctor_id', 
@@ -109,11 +112,11 @@ export class TelegramUpdate {
         .exec();
 
       if (!appointments || appointments.length === 0) {
-        await ctx.reply('📭 У вас нет активных или ожидающих приемов.');
+        await ctx.reply('📭 У вас нет активных или подтвержденных приемов на ближайшее время.');
         return;
       }
 
-      let responseMessage = `📅 <b>Ваш список приемов</b> (Всего: ${appointments.length}):\n\n`;
+      let responseMessage = `📅 <b>Ваш список подтвержденных приемов</b> (Всего: ${appointments.length}):\n\n`;
 
       for (let i = 0; i < appointments.length; i++) {
         const apt = appointments[i];
@@ -129,15 +132,11 @@ export class TelegramUpdate {
         const doctorObj = apt.doctor_id as any;
         const doctorName = doctorObj?.user_id?.full_name || 'Врач не указан';
         const roomNumber = doctorObj?.room_number || 'Не указан';
-        
-        const statusTranslate = apt.status === AppointmentStatuses.Pending 
-          ? '⏳ Ожидает подтверждения' 
-          : '✅ Подтвержден';
 
         responseMessage += `<b>${i + 1}. 🩺 Врач:</b> ${String(doctorName)}\n`;
         responseMessage += `🕒 <b>Время:</b> ${date}\n`;
-        responseMessage += `🚪 <b>Кабинет:</b> ${String(roomNumber)}\n`;
-        responseMessage += `📌 <b>Статус:</b> ${statusTranslate}\n\n`;
+        responseMessage += `🚪 <b>Кабинет:</b> № ${String(roomNumber)}\n`;
+        responseMessage += `📌 <b>Статус:</b> ✅ Подтвержден врачом\n\n`;
       }
 
       await ctx.reply(responseMessage, { parse_mode: 'HTML' });

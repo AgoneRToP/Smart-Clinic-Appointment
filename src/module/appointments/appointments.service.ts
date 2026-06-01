@@ -4,13 +4,11 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { Appointment } from './models';
 import { CreateAppointmentDto } from './dtos';
 import { AppointmentStatuses } from '@/core/constants';
-import { Doctor } from '../doctors';
-import { User } from '../users';
-import { TelegramNotifyService } from '@/bot'; 
+import { Model, Types } from 'mongoose';
+import { TelegramNotifyService } from '@/bot';
 
 @Injectable()
 export class AppointmentsService {
@@ -42,17 +40,17 @@ export class AppointmentsService {
 
     const newAppointment = new this.appointmentModel({
       patient_id: patientId,
-      doctor_id,
-      appointment_date: new Date(appointment_date),
+      doctor_id: payload.doctor_id,
+      appointment_date: payload.appointment_date,
       status: AppointmentStatuses.Pending,
     });
 
     return await newAppointment.save();
   }
 
-  async findByPatient(patientId: User) {
+  async findByPatient(patientId: string) {
     return await this.appointmentModel
-      .find({ patient_id: patientId })
+      .find({ patient_id: new Types.ObjectId(patientId) as any })
       .populate({
         path: 'doctor_id',
         populate: { path: 'user_id', select: 'full_name' },
@@ -61,7 +59,7 @@ export class AppointmentsService {
       .exec();
   }
 
-  async findByDoctor(doctorId: Doctor) {
+  async findByDoctor(doctorId: Object) {
     return await this.appointmentModel
       .find({ doctor_id: doctorId })
       .populate('patient_id', 'full_name email')
@@ -69,28 +67,18 @@ export class AppointmentsService {
       .exec();
   }
 
-  async updateStatus(
-    id: string,
-    status: AppointmentStatuses,
-  ): Promise<Appointment> {
-    const appointment = await this.appointmentModel
-      .findByIdAndUpdate(id, { status }, { new: true })
-      .exec();
-
+  async updateStatus(id: string, status: string, appointmentDate?: string) {
+    const appointment = await this.appointmentModel.findById(id).exec();
     if (!appointment) {
-      throw new NotFoundException('No appointment found');
+      throw new NotFoundException('Запись не найдена');
     }
 
-    if (status === AppointmentStatuses.Scheduled) {
-      const dateStr = new Date(appointment.appointment_date).toLocaleString(
-        'ru-RU',
-      );
-      await this.telegramNotifyService.sendNotificationToUser(
-        appointment.patient_id.toString(),
-        `🎉 <b>Ваш прием подтвержден!</b>\n\n📅 Дата: ${dateStr}\n🩺 Доктор ожидает вас.`,
-      );
+    appointment.status = status as any;
+
+    if (appointmentDate) {
+      appointment.appointment_date = appointmentDate as any;
     }
 
-    return appointment;
+    return await appointment.save();
   }
 }

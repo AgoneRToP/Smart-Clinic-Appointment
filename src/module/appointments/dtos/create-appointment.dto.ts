@@ -1,5 +1,5 @@
 import { Doctor } from '@/module/doctors';
-import { IsMongoId, IsNotEmpty, IsString } from 'class-validator';
+import { IsMongoId, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateAppointmentDto {
   @IsMongoId({ message: 'Invalid doctor ID' })
@@ -9,4 +9,12 @@ export class CreateAppointmentDto {
   @IsString({ message: 'Incorrect date format' })
   @IsNotEmpty({ message: 'Date and time of appointment are required' })
   appointment_date: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'Выберите пациента из базы' })
+  patient_id: string;
+
+  @IsString()
+  @IsOptional()
+  comment?: string;
 }

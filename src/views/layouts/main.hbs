@@ -21,40 +21,62 @@
 <link rel="stylesheet" href="/css/medical-redesign.css"></head>
 <body>
 
-  <!-- Навигационная панель -->
+  <!-- Навигационная панель Apple-style -->
   <nav class="navbar navbar-expand-lg navbar-clinic sticky-top py-3">
     <div class="container">
-      <a class="navbar-brand navbar-brand-clinic d-flex align-items-center gap-2" href="/">
-        <span style="font-size: 1.5rem;">🏥</span> SmartClinic
+      
+      <!-- Логотип клиники -->
+      <a class="navbar-brand navbar-brand-clinic d-flex align-items-center gap-2 me-4" href="/">
+        <span style="font-size: 1.6rem;">🏥</span> 
+        <span class="fw-bold tracking-tight">Smart<span class="text-primary">Clinic</span></span>
       </a>
+
+      <!-- 🔍 ГЛОБАЛЬНЫЙ ПОИСК В ШАПКЕ САЙТА (Вместо старого Layout) -->
+      <form action="/" method="GET" class="d-flex mx-auto col-12 col-lg-5 my-2 my-lg-0">
+        <div class="input-group">
+          <input 
+            type="text" 
+            name="search" 
+            class="form-control border-2 shadow-sm py-2 px-3" 
+            style="border-radius: 10px 0 0 10px; font-size: 0.9rem;"
+            placeholder="Поиск врача по имени или специальности..."
+            value="{{searchQuery}}"
+          >
+          <button class="btn btn-primary px-4 fw-semibold" type="submit" style="border-radius: 0 10px 10px 0; background-color: #0ea5e9; border: none;">
+            Найти
+          </button>
+        </div>
+      </form>
+
       <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
+
+      <!-- Меню авторизации -->
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto align-items-center gap-2">
-          <li class="nav-item"><a class="nav-link nav-link-clinic px-3" href="/doctors">Врачи</a></li>
-          <li class="nav-item"><a class="nav-link nav-link-clinic px-3" href="/auth/login">Вход</a></li>
-          <li class="nav-item mt-2 mt-lg-0">
-            <a class="btn-clinic-primary" href="/auth/register">Регистрация</a>
+          <li class="nav-item"><a class="nav-link nav-link-clinic px-2" href="/profile">👤 Личный кабинет</a></li>
+          <li class="nav-item ms-lg-2">
+            <a class="btn btn-clinic-primary shadow-sm" style="padding: 8px 20px; font-size: 0.9rem;" href="/auth/register">Регистрация</a>
           </li>
         </ul>
       </div>
+
     </div>
   </nav>
 
   <!-- Контент страниц -->
-  <main class="container py-4">
+  <main class="container py-4 my-2">
     {{{body}}}
   </main>
 
-  <!-- Подвал -->
-  <footer class="text-center py-4 mt-5">
+  <footer class="text-center py-4 mt-auto">
     <div class="container">
-      <p class="mb-1 small fw-medium">Smart Clinic Appointment System</p>
-      <small class="text-muted">&copy; 2026 Все права защищены.</small>
+      <p class="mb-1 small fw-semibold text-dark">Smart Clinic Appointment Management System</p>
+      <small class="text-muted">&copy; 2026 Локальная сборка бэкенда.</small>
     </div>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://jsdelivr.net"></script>
 </body>
 </html>

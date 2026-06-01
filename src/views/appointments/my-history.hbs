@@ -1,0 +1,58 @@
+<div class="card shadow border-0 p-4 mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div>
+      <h3 class="fw-bold text-primary mb-1">📜 Моя история записей</h3>
+      <p class="text-muted mb-0">Здесь отображаются все ваши текущие и прошедшие визиты к врачам клиники.</p>
+    </div>
+    <a href="/profile" class="btn btn-outline-secondary">↩ В личный кабинет</a>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle border rounded-3 overflow-hidden">
+      <thead class="table-primary">
+        <tr>
+          <th class="ps-3">#</th>
+          <th>Врач специалист</th>
+          <th>Кабинет</th>
+          <th>Дата и время приема</th>
+          <th class="pe-3">Текущий статус</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each appointments}}
+          <tr>
+            <td class="fw-bold ps-3">{{@index}}</td>
+            <td class="fw-bold text-dark">
+              👨‍⚕️ {{this.doctor_id.user_id.full_name}}
+            </td>
+            <td>
+              <span class="badge bg-light text-dark border">🚪 Каб. {{this.doctor_id.room_number}}</span>
+            </td>
+            <td class="fw-semibold text-secondary">
+              🕒 {{this.appointment_date}}
+            </td>
+            <td class="pe-3">
+              {{#ifCond this.status '===' 'pending'}}
+                <span class="badge bg-warning text-dark px-3 py-2 rounded-pill shadow-sm">⏳ Ожидает подтверждения</span>
+              {{/ifCond}}
+              {{#ifCond this.status '===' 'scheduled'}}
+                <span class="badge bg-success px-3 py-2 rounded-pill shadow-sm">✅ Одобрен врачом</span>
+              {{/ifCond}}
+              {{#ifCond this.status '===' 'canceled'}}
+                <span class="badge bg-danger px-3 py-2 rounded-pill shadow-sm">❌ Отменен</span>
+              {{/ifCond}}
+            </td>
+          </tr>
+        {{else}}
+          <tr>
+            <td colspan="5" class="text-center py-5 text-muted fs-5">
+              📭 У вас пока нет ни одной записи на прием к врачу.
+              <br>
+              <a href="/appointments/book" class="btn btn-clinic-primary btn-sm mt-3">Записаться прямо сейчас</a>
+            </td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</div>
