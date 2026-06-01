@@ -32,6 +32,14 @@ export class AuthController {
     return { title: 'Регистрация' };
   }
 
+  // ✅ FIX: verify-email sahifasi qo'shildi
+  @Protected(false)
+  @Get('/verify-email')
+  @Render('auth/verify-email')
+  renderVerifyEmail() {
+    return { title: 'Подтвердите Email' };
+  }
+
   @Protected(false)
   @Post('/login')
   @HttpCode(HttpStatus.OK)
@@ -50,5 +58,13 @@ export class AuthController {
   @Get('/activate')
   async activate(@Query('token') token: string, @Res() res: Response) {
     await this.service.activate(token, res);
+  }
+
+  @Protected(false)
+  @Get('/logout')
+  logout(@Res() res: Response) {
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+    return res.redirect('/auth/login');
   }
 }

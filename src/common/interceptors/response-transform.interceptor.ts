@@ -14,6 +14,12 @@ export class ResponseTransformInterceptor implements NestInterceptor {
       return next.handle();
     }
 
+    const handler = context.getHandler();
+    const hasRenderMetadata = Reflect.getMetadata('__renderTemplate__', handler);
+    if (hasRenderMetadata) {
+      return next.handle();
+    }
+
     return next.handle().pipe(
       map((data) => {
         if (data && typeof data === 'object' && 'success' in data) {

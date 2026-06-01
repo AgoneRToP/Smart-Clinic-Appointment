@@ -32,6 +32,13 @@ export class AuthService {
       throw new NotFoundException('Пользователь не найден');
     }
 
+    // ✅ FIX: Email aktivatsiyasini tekshirish
+    if (existing.is_active !== UserStatuses.Active) {
+      throw new UnauthorizedException(
+        'Аккаунт не активирован. Проверьте вашу почту.',
+      );
+    }
+
     const isSame = await this.comparePass(payload.password, existing.password);
 
     if (!isSame) {
@@ -43,7 +50,8 @@ export class AuthService {
     const refreshToken = await this.generateRefreshToken(tokenPayload);
 
     const isProd = this.configService.get('NODE_ENV') === 'production';
-    const accessTimeInSeconds = this.configService.get<number>('jwt.access_time') || 3600;
+    const accessTimeInSeconds =
+      this.configService.get<number>('jwt.access_time') || 3600;
 
     res.cookie('accessToken', accessToken, {
       signed: true,
@@ -53,11 +61,11 @@ export class AuthService {
       expires: new Date(Date.now() + accessTimeInSeconds * 1000),
     });
 
-    res.cookie('refreshToken', refreshToken, { 
+    res.cookie('refreshToken', refreshToken, {
       signed: true,
       httpOnly: true,
       secure: isProd,
-      sameSite: 'lax'
+      sameSite: 'lax',
     });
 
     const acceptHeader = res.req?.headers['accept'];
@@ -95,16 +103,22 @@ export class AuthService {
       is_active: UserStatuses.Inactive,
     });
 
-    this.mailService.sendActivationEmail(user.email, user.full_name, activationToken);
+    this.mailService.sendActivationEmail(
+      user.email,
+      user.full_name,
+      activationToken,
+    );
 
     const acceptHeader = res.req?.headers['accept'];
     if (acceptHeader && acceptHeader.includes('text/html')) {
-      return res.redirect('/profile'); 
+      // ✅ FIX: register dan keyin profile emas, verify-email sahifasiga yo'naltirish
+      return res.redirect('/auth/verify-email');
     }
 
     return res.json({
       success: true,
-      data: existing,
+      // ✅ FIX: existing emas, yangi yaratilgan user qaytariladi
+      data: user,
     });
   }
 
@@ -132,7 +146,8 @@ export class AuthService {
       const refreshToken = await this.generateRefreshToken(tokenPayload);
 
       const isProd = this.configService.get('NODE_ENV') === 'production';
-      const accessTimeInSeconds = this.configService.get<number>('jwt.access_time') || 3600;
+      const accessTimeInSeconds =
+        this.configService.get<number>('jwt.access_time') || 3600;
 
       res.cookie('accessToken', accessToken, {
         signed: true,
@@ -142,16 +157,21 @@ export class AuthService {
         expires: new Date(Date.now() + accessTimeInSeconds * 1000),
       });
 
-      res.cookie('refreshToken', refreshToken, { 
-        signed: true, 
-        httpOnly: true, 
-        secure: isProd, 
-        sameSite: 'lax' 
+      res.cookie('refreshToken', refreshToken, {
+        signed: true,
+        httpOnly: true,
+        secure: isProd,
+        sameSite: 'lax',
       });
 
-      return res.redirect('/profile');
+      return res.render('auth/activation-success', {
+        layout: 'layouts/main',
+        title: 'Успешная активация',
+      });
     } catch (error) {
-      throw new BadRequestException('Ссылка недействительна или её срок действия (15 мин) истек.');
+      throw new BadRequestException(
+        'Ссылка недействительна или её срок действия (15 мин) истек.',
+      );
     }
   }
 
